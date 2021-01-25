@@ -26,9 +26,12 @@
 #ifndef OCTAVE_7_H__
 #define OCTAVE_7_H__
 
+#if OCTAVE_MAJOR_VERSION < 7
+
 #include <octave/builtin-defun-decls.h>
 #include <octave/lex.h>
 #include <octave/oct-string.h>
+#include <octave/version.h>
 
 namespace octave
 {
@@ -78,7 +81,7 @@ namespace octave
     std::string m_replacement_style{"underscore"};
     std::string m_prefix{"x"};
   };
-  
+
   bool
   make_valid_name (std::string& str, const make_valid_name_options& options)
   {
@@ -200,6 +203,7 @@ namespace octave
       }
   }
 
+#if OCTAVE_MAJOR_VERSION < 6
 
   // In most cases, the following are preferred for efficiency.  Some
   // cases may require the flexibility of the general unwind_protect
@@ -283,18 +287,10 @@ namespace octave
     std::function<void (void)> m_fcn;
   };
 
-
-
-
-
-
-
-
-
-
-
-
+#endif
 
 }
+
+#endif
 
 #endif
