@@ -26,12 +26,12 @@
 #ifndef OCTAVE_7_H__
 #define OCTAVE_7_H__
 
-#if OCTAVE_MAJOR_VERSION < 7
-
 #include <octave/builtin-defun-decls.h>
 #include <octave/lex.h>
 #include <octave/oct-string.h>
 #include <octave/version.h>
+
+#if OCTAVE_MAJOR_VERSION < 7
 
 namespace octave
 {
