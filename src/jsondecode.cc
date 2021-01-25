@@ -23,19 +23,16 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#if defined (HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include <octave/oct.h>
 
-#include "defun.h"
-#include "error.h"
-#include "errwarn.h"
-#include "ovl.h"
-#include "utils.h"
+// Include some features from Octave 7.
+#include "octave7.h"
+
+#define HAVE_RAPIDJSON 1
 
 #if defined (HAVE_RAPIDJSON)
-#  include <rapidjson/document.h>
-#  include <rapidjson/error/en.h>
+#  include "rapidjson/document.h"
+#  include "rapidjson/error/en.h"
 #endif
 
 #if defined (HAVE_RAPIDJSON)
@@ -423,92 +420,93 @@ decode (const rapidjson::Value& val,
 
 #endif
 
-DEFUN (jsondecode, args, ,
-       doc: /* -*- texinfo -*-
-@deftypefn  {} {@var{object} =} jsondecode (@var{JSON_txt})
-@deftypefnx {} {@var{object} =} jsondecode (@dots{}, "ReplacementStyle", @var{rs})
-@deftypefnx {} {@var{object} =} jsondecode (@dots{}, "Prefix", @var{pfx})
-
-Decode text that is formatted in JSON.
-
-The input @var{JSON_txt} is a string that contains JSON text.
-
-The output @var{object} is an Octave object that contains the result of
-decoding @var{JSON_txt}.
-
-For more information about the options @qcode{"ReplacementStyle"} and
-@qcode{"Prefix"}, see
-@ref{XREFmatlab_lang_makeValidName,,matlab.lang.makeValidName}.
-
-NOTE: Decoding and encoding JSON text is not guaranteed to reproduce the
-original text as some names may be changed by @code{matlab.lang.makeValidName}.
-
-This table shows the conversions from JSON data types to Octave data types:
-
-@multitable @columnfractions 0.50 0.50
-@headitem JSON data type @tab Octave data type
-@item Boolean @tab scalar logical
-@item Number @tab scalar double
-@item String @tab vector of characters
-@item Object @tab scalar struct (field names of the struct may be different from the keys of the JSON object due to @code{matlab_lang_makeValidName}
-@item null, inside a numeric array @tab @code{NaN}
-@item null, inside a non-numeric array @tab empty double array @code{[]}
-@item Array, of different data types @tab cell array
-@item Array, of Booleans @tab logical array
-@item Array, of Numbers @tab double array
-@item Array, of Strings @tab cell array of character vectors (@code{cellstr})
-@item Array of Objects, same field names @tab struct array
-@item Array of Objects, different field names @tab cell array of scalar structs
-@end multitable
-
-Examples:
-
-@example
-@group
-jsondecode ('[1, 2, null, 3]')
-    @result{} ans =
-
-      1
-      2
-    NaN
-      3
-@end group
-
-@group
-jsondecode ('["foo", "bar", ["foo", "bar"]]')
-    @result{} ans =
-       @{
-         [1,1] = foo
-         [2,1] = bar
-         [3,1] =
-         @{
-           [1,1] = foo
-           [2,1] = bar
-         @}
-
-       @}
-@end group
-
-@group
-jsondecode ('@{"nu#m#ber": 7, "s#tr#ing": "hi"@}', ...
-            'ReplacementStyle', 'delete')
-    @result{} scalar structure containing the fields:
-
-         number = 7
-         string = hi
-@end group
-
-@group
-jsondecode ('@{"1": "one", "2": "two"@}', 'Prefix', 'm_')
-    @result{} scalar structure containing the fields:
-
-         m_1 = one
-         m_2 = two
-@end group
-@end example
-
-@seealso{jsonencode, matlab.lang.makeValidName}
-@end deftypefn */)
+DEFUN_DLD (jsondecode, args, ,
+           "-*- texinfo -*-\n\
+@deftypefn  {} {@var{object} =} jsondecode (@var{JSON_txt})                  \n\
+@deftypefnx {} {@var{object} =} jsondecode (@dots{}, \"ReplacementStyle\", @var{rs}) \n\
+@deftypefnx {} {@var{object} =} jsondecode (@dots{}, \"Prefix\", @var{pfx})    \n\
+                                                                             \n\
+Decode text that is formatted in JSON.                                       \n\
+                                                                             \n\
+The input @var{JSON_txt} is a string that contains JSON text.                \n\
+                                                                             \n\
+The output @var{object} is an Octave object that contains the result of      \n\
+decoding @var{JSON_txt}.                                                     \n\
+                                                                             \n\
+For more information about the options @qcode{\"ReplacementStyle\"} and      \n\
+@qcode{\"Prefix\"}, see                                                      \n\
+@ref{XREFmatlab_lang_makeValidName,,matlab.lang.makeValidName}.              \n\
+                                                                             \n\
+NOTE: Decoding and encoding JSON text is not guaranteed to reproduce the     \n\
+original text as some names may be changed by @code{matlab.lang.makeValidName}. \n\
+                                                                             \n\
+This table shows the conversions from JSON data types to Octave data types:  \n\
+                                                                             \n\
+@multitable @columnfractions 0.50 0.50                                       \n\
+@headitem JSON data type @tab Octave data type                               \n\
+@item Boolean @tab scalar logical                                            \n\
+@item Number @tab scalar double                                              \n\
+@item String @tab vector of characters                                       \n\
+@item Object @tab scalar struct (field names of the struct may be different  \n\
+      from the keys of the JSON object due to @code{matlab_lang_makeValidName} \n\
+@item null, inside a numeric array @tab @code{NaN}                           \n\
+@item null, inside a non-numeric array @tab empty double array @code{[]}     \n\
+@item Array, of different data types @tab cell array                         \n\
+@item Array, of Booleans @tab logical array                                  \n\
+@item Array, of Numbers @tab double array                                    \n\
+@item Array, of Strings @tab cell array of character vectors (@code{cellstr}) \n\
+@item Array of Objects, same field names @tab struct array                   \n\
+@item Array of Objects, different field names @tab cell array of scalar structs \n\
+@end multitable                                                              \n\
+                                                                             \n\
+Examples:                                                                    \n\
+                                                                             \n\
+@example                                                                     \n\
+@group                                                                       \n\
+jsondecode ('[1, 2, null, 3]')                                               \n\
+    @result{} ans =                                                          \n\
+                                                                             \n\
+      1                                                                      \n\
+      2                                                                      \n\
+    NaN                                                                      \n\
+      3                                                                      \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+jsondecode ('[\"foo\", \"bar\", [\"foo\", \"bar\"]]')                        \n\
+    @result{} ans =                                                          \n\
+       @{                                                                    \n\
+         [1,1] = foo                                                         \n\
+         [2,1] = bar                                                         \n\
+         [3,1] =                                                             \n\
+         @{                                                                  \n\
+           [1,1] = foo                                                       \n\
+           [2,1] = bar                                                       \n\
+         @}                                                                  \n\
+                                                                             \n\
+       @}                                                                    \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+jsondecode ('@{\"nu#m#ber\": 7, \"s#tr#ing\": \"hi\"@}', ...                 \n\
+            'ReplacementStyle', 'delete')                                    \n\
+    @result\{} scalar structure containing the fields:                       \n\
+                                                                             \n\
+         number = 7                                                          \n\
+         string = hi                                                         \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+jsondecode ('@{\"1\": \"one\", \"2\": \"two\"@}', 'Prefix', 'm_')            \n\
+    @result\{} scalar structure containing the fields:                       \n\
+                                                                             \n\
+         m_1 = one                                                           \n\
+         m_2 = two                                                           \n\
+@end group                                                                   \n\
+@end example                                                                 \n\
+                                                                             \n\
+@seealso{jsonencode, matlab.lang.makeValidName}                              \n\
+@end deftypefn ")
 {
 #if defined (HAVE_RAPIDJSON)
 

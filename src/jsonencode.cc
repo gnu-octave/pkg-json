@@ -23,20 +23,17 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#if defined (HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include <octave/oct.h>
 
-#include "builtin-defun-decls.h"
-#include "defun.h"
-#include "error.h"
-#include "errwarn.h"
-#include "oct-string.h"
-#include "ovl.h"
+// Include some features from Octave 7.
+#include "octave7.h"
+
+#define HAVE_RAPIDJSON 1
+#define HAVE_RAPIDJSON_PRETTYWRITER 1
 
 #if defined (HAVE_RAPIDJSON)
-#  include <rapidjson/stringbuffer.h>
-#  include <rapidjson/writer.h>
+#  include "rapidjson/stringbuffer.h"
+#  include "rapidjson/writer.h"
 #  if defined (HAVE_RAPIDJSON_PRETTYWRITER)
 #    include <rapidjson/prettywriter.h>
 #  endif
@@ -442,144 +439,144 @@ encode (T& writer, const octave_value& obj, const bool& ConvertInfAndNaN)
 
 #endif
 
-DEFUN (jsonencode, args, ,
-       doc: /* -*- texinfo -*-
-@deftypefn  {} {@var{JSON_txt} =} jsonencode (@var{object})
-@deftypefnx {} {@var{JSON_txt} =} jsonencode (@dots{}, "ConvertInfAndNaN", @var{TF})
-@deftypefnx {} {@var{JSON_txt} =} jsonencode (@dots{}, "PrettyWriter", @var{TF})
-
-Encode Octave data types into JSON text.
-
-The input @var{object} is an Octave variable to encode.
-
-The output @var{JSON_txt} is the JSON text that contains the result of encoding
-@var{object}.
-
-If the value of the option @qcode{"ConvertInfAndNaN"} is true then @code{NaN},
-@code{NA}, @code{-Inf}, and @code{Inf} values will be converted to
-@qcode{"null"} in the output.  If it is false then they will remain as their
-original values.  The default value for this option is true.
-
-If the value of the option @qcode{"PrettyWriter"} is true, the output text will
-have indentations and line feeds.  If it is false, the output will be condensed
-and written without whitespace.  The default value for this option is false.
-
-Programming Notes:
-
-@itemize @bullet
-@item
-Complex numbers are not supported.
-
-@item
-classdef objects are first converted to structs and then encoded.
-
-@item
-To preserve escape characters (e.g., @qcode{"@backslashchar{}n"}), use
-single-quoted strings.
-
-@item
-Every character after the null character (@qcode{"@backslashchar{}0"}) in a
-double-quoted string will be dropped during encoding.
-
-@item
-Encoding and decoding an array is not guaranteed to preserve the dimensions
-of the array.  In particular, row vectors will be reshaped to column vectors.
-
-@item
-Encoding and decoding is not guaranteed to preserve the Octave data type
-because JSON supports fewer data types than Octave.  For example, if you
-encode an @code{int8} and then decode it, you will get a @code{double}.
-@end itemize
-
-This table shows the conversions from Octave data types to JSON data types:
-
-@multitable @columnfractions 0.50 0.50
-@headitem Octave data type @tab JSON data type
-@item logical scalar @tab Boolean
-@item logical vector @tab Array of Boolean, reshaped to row vector
-@item logical array  @tab nested Array of Boolean
-@item numeric scalar @tab Number
-@item numeric vector @tab Array of Number, reshaped to row vector
-@item numeric array  @tab nested Array of Number
-@item @code{NaN}, @code{NA}, @code{Inf}, @code{-Inf}@*
-when @qcode{"ConvertInfAndNaN" = true} @tab @qcode{"null"}
-@item @code{NaN}, @code{NA}, @code{Inf}, @code{-Inf}@*
-when @qcode{"ConvertInfAndNaN" = false} @tab @qcode{"NaN"}, @qcode{"NaN"},
-@qcode{"Infinity"}, @qcode{"-Infinity"}
-@item empty array    @tab @qcode{"[]"}
-@item character vector @tab String
-@item character array @tab Array of String
-@item empty character array @tab @qcode{""}
-@item cell scalar @tab Array
-@item cell vector @tab Array, reshaped to row vector
-@item cell array @tab Array, flattened to row vector
-@item struct scalar @tab Object
-@item struct vector @tab Array of Object, reshaped to row vector
-@item struct array  @tab nested Array of Object
-@item classdef object @tab Object
-@end multitable
-
-Examples:
-
-@example
-@group
-jsonencode ([1, NaN; 3, 4])
-@result{} [[1,null],[3,4]]
-@end group
-
-@group
-jsonencode ([1, NaN; 3, 4], "ConvertInfAndNaN", false)
-@result{} [[1,NaN],[3,4]]
-@end group
-
-@group
-## Escape characters inside a single-quoted string
-jsonencode ('\0\a\b\t\n\v\f\r')
-@result{} "\\0\\a\\b\\t\\n\\v\\f\\r"
-@end group
-
-@group
-## Escape characters inside a double-quoted string
-jsonencode ("\a\b\t\n\v\f\r")
-@result{} "\u0007\b\t\n\u000B\f\r"
-@end group
-
-@group
-jsonencode ([true; false], "PrettyWriter", true)
-@result{} ans = [
-       true,
-       false
-   ]
-@end group
-
-@group
-jsonencode (['foo', 'bar'; 'foo', 'bar'])
-@result{} ["foobar","foobar"]
-@end group
-
-@group
-jsonencode (struct ('a', Inf, 'b', [], 'c', struct ()))
-@result{} @{"a":null,"b":[],"c":@{@}@}
-@end group
-
-@group
-jsonencode (struct ('structarray', struct ('a', @{1; 3@}, 'b', @{2; 4@})))
-@result{} @{"structarray":[@{"a":1,"b":2@},@{"a":3,"b":4@}]@}
-@end group
-
-@group
-jsonencode (@{'foo'; 'bar'; @{'foo'; 'bar'@}@})
-@result{} ["foo","bar",["foo","bar"]]
-@end group
-
-@group
-jsonencode (containers.Map(@{'foo'; 'bar'; 'baz'@}, [1, 2, 3]))
-@result{} @{"bar":2,"baz":3,"foo":1@}
-@end group
-@end example
-
-@seealso{jsondecode}
-@end deftypefn */)
+DEFUN_DLD (jsonencode, args, ,
+           "-*- texinfo -*-                                                  \n\
+@deftypefn  {} {@var{JSON_txt} =} jsonencode (@var{object})                  \n\
+@deftypefnx {} {@var{JSON_txt} =} jsonencode (@dots{}, \"ConvertInfAndNaN\", @var{TF}) \n\
+@deftypefnx {} {@var{JSON_txt} =} jsonencode (@dots{}, \"PrettyWriter\", @var{TF}) \n\
+                                                                             \n\
+Encode Octave data types into JSON text.                                     \n\
+                                                                             \n\
+The input @var{object} is an Octave variable to encode.                      \n\
+                                                                             \n\
+The output @var{JSON_txt} is the JSON text that contains the result of encoding \n\
+@var{object}.                                                                \n\
+                                                                             \n\
+If the value of the option @qcode{\"ConvertInfAndNaN\"} is true then @code{NaN}, \n\
+@code{NA}, @code{-Inf}, and @code{Inf} values will be converted to           \n\
+@qcode{\"null\"} in the output.  If it is false then they will remain as their \n\
+original values.  The default value for this option is true.                 \n\
+                                                                             \n\
+If the value of the option @qcode{\"PrettyWriter\"} is true, the output text will \n\
+have indentations and line feeds.  If it is false, the output will be condensed \n\
+and written without whitespace.  The default value for this option is false. \n\
+                                                                             \n\
+Programming Notes:                                                           \n\
+                                                                             \n\
+@itemize @bullet                                                             \n\
+@item                                                                        \n\
+Complex numbers are not supported.                                           \n\
+                                                                             \n\
+@item                                                                        \n\
+classdef objects are first converted to structs and then encoded.            \n\
+                                                                             \n\
+@item                                                                        \n\
+To preserve escape characters (e.g., @qcode{\"@backslashchar{}n\"}), use     \n\
+single-quoted strings.                                                       \n\
+                                                                             \n\
+@item                                                                        \n\
+Every character after the null character (@qcode{\"@backslashchar\{}0\"}) in a  \n\
+double-quoted string will be dropped during encoding.                        \n\
+                                                                             \n\
+@item                                                                        \n\
+Encoding and decoding an array is not guaranteed to preserve the dimensions  \n\
+of the array.  In particular, row vectors will be reshaped to column vectors.\n\
+                                                                             \n\
+@item                                                                        \n\
+Encoding and decoding is not guaranteed to preserve the Octave data type     \n\
+because JSON supports fewer data types than Octave.  For example, if you     \n\
+encode an @code{int8} and then decode it, you will get a @code{double}.      \n\
+@end itemize                                                                 \n\
+                                                                             \n\
+This table shows the conversions from Octave data types to JSON data types:  \n\
+                                                                             \n\
+@multitable @columnfractions 0.50 0.50                                       \n\
+@headitem Octave data type @tab JSON data type                               \n\
+@item logical scalar @tab Boolean                                            \n\
+@item logical vector @tab Array of Boolean, reshaped to row vector           \n\
+@item logical array  @tab nested Array of Boolean                            \n\
+@item numeric scalar @tab Number                                             \n\
+@item numeric vector @tab Array of Number, reshaped to row vector            \n\
+@item numeric array  @tab nested Array of Number                             \n\
+@item @code{NaN}, @code{NA}, @code{Inf}, @code{-Inf}@*                       \n\
+when @qcode{\"ConvertInfAndNaN\" = true} @tab @qcode{\"null\"}               \n\
+@item @code{NaN}, @code{NA}, @code{Inf}, @code{-Inf}@*                       \n\
+when @qcode{\"ConvertInfAndNaN\" = false} @tab @qcode{\"NaN\"}, @qcode{\"NaN\"}, \n\
+@qcode{\"Infinity\"}, @qcode{\"-Infinity\"}                                  \n\
+@item empty array    @tab @qcode{\"[]\"}                                     \n\
+@item character vector @tab String                                           \n\
+@item character array @tab Array of String                                   \n\
+@item empty character array @tab @qcode{\"\"}                                \n\
+@item cell scalar @tab Array                                                 \n\
+@item cell vector @tab Array, reshaped to row vector                         \n\
+@item cell array @tab Array, flattened to row vector                         \n\
+@item struct scalar @tab Object                                              \n\
+@item struct vector @tab Array of Object, reshaped to row vector             \n\
+@item struct array  @tab nested Array of Object                              \n\
+@item classdef object @tab Object                                            \n\
+@end multitable                                                              \n\
+                                                                             \n\
+Examples:                                                                    \n\
+                                                                             \n\
+@example                                                                     \n\
+@group                                                                       \n\
+jsonencode ([1, NaN; 3, 4])                                                  \n\
+@result\{} [[1,null],[3,4]]                                                  \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+jsonencode ([1, NaN; 3, 4], \"ConvertInfAndNaN\", false)                     \n\
+@result\{} [[1,NaN],[3,4]]                                                   \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+## Escape characters inside a single-quoted string                           \n\
+jsonencode ('\\0\\a\\b\\t\\n\\v\\f\\r')                                      \n\
+@result\{} \"\\\\0\\\\a\\\\b\\\\t\\\\n\\\\v\\\\f\\\\r\"                      \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+## Escape characters inside a double-quoted string                           \n\
+jsonencode (\"\\a\\b\\t\\n\\v\\f\\r\")                                       \n\
+@result{} \"\\u0007\\b\\t\\n\\u000B\\f\\r\"                                  \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+jsonencode ([true; false], \"PrettyWriter\", true)                           \n\
+@result{} ans = [                                                            \n\
+       true,                                                                 \n\
+       false                                                                 \n\
+   ]                                                                         \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+jsonencode (['foo', 'bar'; 'foo', 'bar'])                                    \n\
+@result\{} [\"foobar\",\"foobar\"]                                           \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+jsonencode (struct ('a', Inf, 'b', [], 'c', struct ()))                      \n\
+@result\{} @{\"a\":null,\"b\":[],\"c\":@{@}@}                                \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+jsonencode (struct ('structarray', struct ('a', @{1; 3@}, 'b', @{2; 4@})))   \n\
+@result\{} @{\"structarray\":[@{\"a\":1,\"b\":2@},@{\"a\":3,\"b\":4@}]@}     \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+jsonencode (@{'foo'; 'bar'; @{'foo'; 'bar'@}@})                              \n\
+@result\{} [\"foo\",\"bar\",[\"foo\",\"bar\"]]                               \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
+jsonencode (containers.Map(@{'foo'; 'bar'; 'baz'@}, [1, 2, 3]))              \n\
+@result\{} @{\"bar\":2,\"baz\":3,\"foo\":1@}                                 \n\
+@end group                                                                   \n\
+@end example                                                                 \n\
+                                                                             \n\
+@seealso{jsondecode}                                                         \n\
+@end deftypefn")
 {
 #if defined (HAVE_RAPIDJSON)
 
