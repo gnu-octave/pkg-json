@@ -542,10 +542,10 @@ jsonencode (\"\\a\\b\\t\\n\\v\\f\\r\")                                       \n\
 @end group                                                                   \n\
                                                                              \n\
 @group                                                                       \n\
-jsonencode ([true; false], \"PrettyWriter\", true)                           \n\
+jsonencode ([true; false], \"PrettyPrint\", true)                            \n\
 @result{} ans = [                                                            \n\
-       true,                                                                 \n\
-       false                                                                 \n\
+     true,                                                                   \n\
+     false                                                                   \n\
    ]                                                                         \n\
 @end group                                                                   \n\
                                                                              \n\
