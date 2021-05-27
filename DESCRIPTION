@@ -1,8 +1,10 @@
-Name: pkg-json
-Version: 1.1.0
-Date: 2021-03-22
-Author: Kai T. Ohlhus <k.ohlhus@gmail.com>
-Maintainer: Kai T. Ohlhus <k.ohlhus@gmail.com>
-Title: JSON support by Matlab compatible (jsondecode / jsonencode) functions.
-Description: JSON support by Matlab compatible (jsondecode / jsonencode)
+name: pkg-json
+version: 1.2.0
+date: 2021-05-27
+author: Kai T. Ohlhus <k.ohlhus@gmail.com>
+maintainer: Kai T. Ohlhus <k.ohlhus@gmail.com>
+title: JSON support by Matlab compatible (jsondecode / jsonencode) functions.
+description: JSON support by Matlab compatible (jsondecode / jsonencode)
  functions.
+categories: package
+depends: octave (>= 5.1.0)
