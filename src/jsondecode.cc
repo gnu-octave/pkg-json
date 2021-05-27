@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2020 The Octave Project Developers
+// Copyright (C) 2020-2021 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -308,10 +308,13 @@ decode_array_of_arrays (const rapidjson::Value& val,
   NDArray array (array_dims);
 
   // Populate the array with specific order to generate MATLAB-identical output
-  octave_idx_type array_index = 0;
-  for (octave_idx_type i = 0; i < array.numel () / cell_numel; ++i)
-    for (octave_idx_type k = 0; k < cell_numel; ++k)
-      array(array_index++) = cell(k).array_value ()(i);
+  octave_idx_type sub_array_numel = array.numel () / cell_numel;
+  for (octave_idx_type k = 0; k < cell_numel; ++k)
+    {
+      NDArray sub_array_value = cell(k).array_value ();
+      for (octave_idx_type i = 0; i < sub_array_numel; ++i)
+        array(k + i*cell_numel) = sub_array_value(i);
+    }
 
   if (is_bool)
     return boolNDArray (array);
