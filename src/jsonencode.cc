@@ -649,7 +649,7 @@ jsonencode (containers.Map(@{'foo'; 'bar'; 'baz'@}, [1, 2, 3]))              \n\
 Functional BIST tests are located in test/json/jsonencode_BIST.tst
 
 ## Input validation tests
-%!testif HAVE_RAPIDJSON
+%!test
 %! fail ("jsonencode ()");
 %! fail ("jsonencode (1, 2)");
 %! fail ("jsonencode (1, 2, 3, 4)");
@@ -659,9 +659,5 @@ Functional BIST tests are located in test/json/jsonencode_BIST.tst
 %!       "option value must be a logical scalar");
 %! fail ("jsonencode (1, 'foobar', true)", ...
 %!       'Valid options are "ConvertInfAndNaN"');
-
-%!testif HAVE_RAPIDJSON; ! __have_feature__ ("RAPIDJSON_PRETTYWRITER")
-%! fail ("jsonencode (1, 'PrettyPrint', true)", ...
-%!       "warning", 'the "PrettyPrint" option of RapidJSON was unavailable');
 
 */

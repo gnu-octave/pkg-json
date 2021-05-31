@@ -553,7 +553,7 @@ jsondecode ('@{\"1\": \"one\", \"2\": \"two\"@}', 'Prefix', 'm_')            \n\
 Functional BIST tests are located in test/json/jsondecode_BIST.tst
 
 ## Input validation tests
-%!testif HAVE_RAPIDJSON
+%!test
 %! fail ("jsondecode ()");
 %! fail ("jsondecode ('1', 2)");
 %! fail ("jsondecode (1)", "JSON_TXT must be a character string");
