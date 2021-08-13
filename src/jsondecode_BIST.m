@@ -517,7 +517,7 @@
 %! obs  = jsondecode (json);
 %! assert (isequaln (obs, exp));
 
-%%% Test 7: Check "ReplacementStyle" and "Prefix" options
+%%% Test 7: Check "ReplacementStyle", "Prefix", and "makeValidName" options
 
 %!test
 %! json = '{"1a": {"1*a": {"1+*/-a": {"1#a": {}}}}}';
@@ -553,4 +553,25 @@
 %! exp  = struct ('cell_array', {{struct('x_1a', 1, 'b_1', 2); ...
 %!                                struct('x_1a', 3, 'b_2', 4)}});
 %! obs  = jsondecode (json, "ReplacementStyle", "underscore", "Prefix", "x_");
+%! assert (isequal (obs, exp));
+
+%% Check decoding of objects inside an object without using makeValidName
+%!test
+%! json = ['{"object": {"  hi 1   ": 1, "%string.array": 2,' ...
+%!                     '"img/svg+xml": 3, "": 1}}'];
+%! exp  = struct ('object', ...
+%!                struct ('  hi 1   ', 1, '%string.array', 2,
+%!                        'img/svg+xml', 3, '', 1));
+%! obs  = jsondecode (json, "makeValidName", false);
+%! assert (isequal (obs, exp));
+
+%!test
+%! json = '{"1a": {"1*a": {"1+*/-a": {"1#a": {}}}}}';
+%! exp  = struct ('n1a', ...
+%!                struct ('n1a', struct ('n1a', struct ('n1a', struct ()))));
+%! obs  = jsondecode (json, "ReplacementStyle", "delete", ...
+%!                          "makeValidName", false, ...
+%!                          "Prefix", "_", ...
+%!                          "makeValidName", true, ...
+%!                          "Prefix", "n");
 %! assert (isequal (obs, exp));

@@ -39,7 +39,7 @@
 
 octave_value
 decode (const rapidjson::Value& val,
-        const octave::make_valid_name_options& options);
+        const octave::make_valid_name_options* options);
 
 //! Decodes a numerical JSON value into a scalar number.
 //!
@@ -89,7 +89,7 @@ decode_number (const rapidjson::Value& val)
 
 octave_value
 decode_object (const rapidjson::Value& val,
-               const octave::make_valid_name_options& options)
+               const octave::make_valid_name_options* options)
 {
   octave_scalar_map retval;
 
@@ -98,7 +98,8 @@ decode_object (const rapidjson::Value& val,
     // Validator function "matlab.lang.makeValidName" to guarantee legitimate
     // variable name.
     std::string varname = pair.name.GetString ();
-    octave::make_valid_name (varname, options);
+    if (options != nullptr)
+      octave::make_valid_name (varname, *options);
     retval.assign (varname, decode (pair.value, options));
   }
 
@@ -181,7 +182,7 @@ decode_boolean_array (const rapidjson::Value& val)
 
 octave_value
 decode_string_and_mixed_array (const rapidjson::Value& val,
-                               const octave::make_valid_name_options& options)
+                               const octave::make_valid_name_options* options)
 {
   Cell retval (dim_vector (val.Size (), 1));
   octave_idx_type index = 0;
@@ -217,7 +218,7 @@ decode_string_and_mixed_array (const rapidjson::Value& val,
 
 octave_value
 decode_object_array (const rapidjson::Value& val,
-                     const octave::make_valid_name_options& options)
+                     const octave::make_valid_name_options* options)
 {
   Cell struct_cell = decode_string_and_mixed_array (val, options).cell_value ();
   string_vector field_names = struct_cell(0).scalar_map_value ().fieldnames ();
@@ -274,7 +275,7 @@ decode_object_array (const rapidjson::Value& val,
 
 octave_value
 decode_array_of_arrays (const rapidjson::Value& val,
-                        const octave::make_valid_name_options& options)
+                        const octave::make_valid_name_options* options)
 {
   // Some arrays should be decoded as NDArrays and others as cell arrays
   Cell cell = decode_string_and_mixed_array (val, options).cell_value ();
@@ -340,7 +341,7 @@ decode_array_of_arrays (const rapidjson::Value& val,
 
 octave_value
 decode_array (const rapidjson::Value& val,
-              const octave::make_valid_name_options& options)
+              const octave::make_valid_name_options* options)
 {
   // Handle empty arrays
   if (val.Empty ())
@@ -403,7 +404,7 @@ decode_array (const rapidjson::Value& val,
 
 octave_value
 decode (const rapidjson::Value& val,
-        const octave::make_valid_name_options& options)
+        const octave::make_valid_name_options* options)
 {
   if (val.IsBool ())
     return val.GetBool ();
@@ -427,7 +428,8 @@ DEFUN_DLD (jsondecode, args, ,
            "-*- texinfo -*-\n\
 @deftypefn  {} {@var{object} =} jsondecode (@var{JSON_txt})                  \n\
 @deftypefnx {} {@var{object} =} jsondecode (@dots{}, \"ReplacementStyle\", @var{rs}) \n\
-@deftypefnx {} {@var{object} =} jsondecode (@dots{}, \"Prefix\", @var{pfx})    \n\
+@deftypefnx {} {@var{object} =} jsondecode (@dots{}, \"Prefix\", @var{pfx})  \n\
+@deftypefnx {} {@var{object} =} jsondecode (@dots{}, \"makeValidName\", @var{TF}) \n\
                                                                              \n\
 Decode text that is formatted in JSON.                                       \n\
                                                                              \n\
@@ -439,6 +441,10 @@ decoding @var{JSON_txt}.                                                     \n\
 For more information about the options @qcode{\"ReplacementStyle\"} and      \n\
 @qcode{\"Prefix\"}, see                                                      \n\
 @ref{XREFmatlab_lang_makeValidName,,matlab.lang.makeValidName}.              \n\
+                                                                             \n\
+If the value of the option @qcode{\"makeValidName\"} is false then names     \n\
+will not be changed by @code{matlab.lang.makeValidName} and the              \n\
+@qcode{\"ReplacementStyle\"} and @qcode{\"Prefix\"} options will be ignored. \n\
                                                                              \n\
 NOTE: Decoding and encoding JSON text is not guaranteed to reproduce the     \n\
 original text as some names may be changed by @code{matlab.lang.makeValidName}. \n\
@@ -500,6 +506,15 @@ jsondecode ('@{\"nu#m#ber\": 7, \"s#tr#ing\": \"hi\"@}', ...                 \n\
 @end group                                                                   \n\
                                                                              \n\
 @group                                                                       \n\
+jsondecode ('@{\"nu#m#ber\": 7, \"s#tr#ing\": \"hi\"@}', ...                 \n\
+            'makeValidName', false)                                          \n\
+    @result\{} scalar structure containing the fields:                       \n\
+                                                                             \n\
+         nu#m#ber = 7                                                        \n\
+         s#tr#ing = hi                                                       \n\
+@end group                                                                   \n\
+                                                                             \n\
+@group                                                                       \n\
 jsondecode ('@{\"1\": \"one\", \"2\": \"two\"@}', 'Prefix', 'm_')            \n\
     @result\{} scalar structure containing the fields:                       \n\
                                                                              \n\
@@ -519,7 +534,31 @@ jsondecode ('@{\"1\": \"one\", \"2\": \"two\"@}', 'Prefix', 'm_')            \n\
   if (! (nargin % 2))
     print_usage ();
 
-  octave::make_valid_name_options options (args.slice (1, nargin - 1));
+  // Detect if the user wants to use makeValidName
+  bool makeValidName = true;
+  octave_value_list make_valid_name_params;
+  for (auto i = 1; i < nargin; i = i + 2)
+      {
+        std::string parameter = args(i).xstring_value ("jsondecode: "
+          "option argument must be a string");
+        if (octave::string::strcmpi (parameter, "makeValidName"))
+          {
+            makeValidName = args(i + 1).xbool_value ("jsondecode: "
+              "'makeValidName' value must be a bool");
+          }
+        else
+          make_valid_name_params.append (args.slice(i, 2));
+      }
+
+  octave::make_valid_name_options* options;
+
+  if (makeValidName)
+    {
+      octave::make_valid_name_options options_obj (make_valid_name_params);
+      options = &options_obj;
+    }
+  else
+    options = nullptr;
 
   if (! args(0).is_string ())
     error ("jsondecode: JSON_TXT must be a character string");
