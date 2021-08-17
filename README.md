@@ -11,6 +11,7 @@ from his 2020 Google Summer of Code (GSoC) project, which will be part of Octave
 OBJECT = jsondecode (JSON_TXT)
 OBJECT = jsondecode (..., "ReplacementStyle", RS)
 OBJECT = jsondecode (..., "Prefix", PFX)
+OBJECT = jsondecode (..., "makeValidName", TF)
 ```
 Decode text that is formatted in JSON.
 
@@ -21,6 +22,10 @@ decoding `JSON_TXT`.
 
 For more information about the options `"ReplacementStyle"` and
 `"Prefix"`, see `matlab.lang.makeValidName`.
+
+If the value of the option `makeValidName` is false then names will not be
+changed by `matlab.lang.makeValidName` and the `"ReplacementStyle"` and
+`"Prefix"` options will be ignored.
 
 NOTE: Decoding and encoding JSON text is not guaranteed to
 reproduce the original text as some names may be changed by
@@ -55,6 +60,7 @@ jsondecode ('[1, 2, null, 3]')
     NaN
       3
 
+
 jsondecode ('["foo", "bar", ["foo", "bar"]]')
     => ans =
         {
@@ -68,12 +74,22 @@ jsondecode ('["foo", "bar", ["foo", "bar"]]')
 
         }
 
+
 jsondecode ('{"nu#m#ber": 7, "s#tr#ing": "hi"}', ...
             'ReplacementStyle', 'delete')
     => scalar structure containing the fields:
 
           number = 7
           string = hi
+
+
+jsondecode ('{"nu#m#ber": 7, "s#tr#ing": "hi"}', ...
+            'makeValidName', false)
+    => scalar structure containing the fields:
+
+         nu#m#ber = 7
+         s#tr#ing = hi
+
 
 jsondecode ('{"1": "one", "2": "two"}', 'Prefix', 'm_')
     => scalar structure containing the fields:
