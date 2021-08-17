@@ -5,6 +5,8 @@ HEADS = octave7.h
 RAPID_JSON_URL = https://github.com/Tencent/rapidjson/archive/master.tar.gz
 RAPID_JSON_TAR = master.tar.gz
 
+MKOCTFILE ?= mkoctfile
+
 CURL_OPTS = --fail --location --silent --show-error --output
 
 all: $(OCTS)
