@@ -535,30 +535,28 @@ jsondecode ('@{\"1\": \"one\", \"2\": \"two\"@}', 'Prefix', 'm_')            \n\
     print_usage ();
 
   // Detect if the user wants to use makeValidName
-  bool makeValidName = true;
+  bool use_makeValidName = true;
   octave_value_list make_valid_name_params;
   for (auto i = 1; i < nargin; i = i + 2)
-      {
-        std::string parameter = args(i).xstring_value ("jsondecode: "
-          "option argument must be a string");
-        if (octave::string::strcmpi (parameter, "makeValidName"))
-          {
-            makeValidName = args(i + 1).xbool_value ("jsondecode: "
-              "'makeValidName' value must be a bool");
-          }
-        else
-          make_valid_name_params.append (args.slice(i, 2));
-      }
+    {
+      std::string parameter = args(i).xstring_value ("jsondecode: "
+        "option argument must be a string");
+      if (octave::string::strcmpi (parameter, "makeValidName"))
+        {
+          use_makeValidName = args(i + 1).xbool_value ("jsondecode: "
+            "'makeValidName' value must be a bool");
+        }
+      else
+        make_valid_name_params.append (args.slice(i, 2));
+    }
 
-  octave::make_valid_name_options* options;
+  octave::make_valid_name_options* options = nullptr;
 
-  if (makeValidName)
+  if (use_makeValidName)
     {
       octave::make_valid_name_options options_obj (make_valid_name_params);
       options = &options_obj;
     }
-  else
-    options = nullptr;
 
   if (! args(0).is_string ())
     error ("jsondecode: JSON_TXT must be a character string");
