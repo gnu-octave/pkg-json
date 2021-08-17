@@ -1,9 +1,19 @@
-# pkg-json
+# Octave JSON package
 
 JSON support by Matlab compatible (jsondecode / jsonencode) functions.
 
 The code is courtesy of [@Abdallah-Elshamy](https://github.com/Abdallah-Elshamy/)
 from his 2020 Google Summer of Code (GSoC) project, which will be part of Octave 7.
+
+
+## Installation
+
+From the Octave command-line:
+
+```octave
+pkg install "https://github.com/gnu-octave/pkg-json/archive/v1.4.0.tar.gz"
+```
+
 
 ## jsondecode
 
