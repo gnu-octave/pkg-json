@@ -11,7 +11,7 @@ from his 2020 Google Summer of Code (GSoC) project, which will be part of Octave
 From the Octave command-line:
 
 ```octave
-pkg install "https://github.com/gnu-octave/pkg-json/archive/v1.4.0.tar.gz"
+pkg install "https://github.com/gnu-octave/pkg-json/archive/v1.5.0.tar.gz"
 ```
 
 
