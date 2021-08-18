@@ -550,13 +550,11 @@ jsondecode ('@{\"1\": \"one\", \"2\": \"two\"@}', 'Prefix', 'm_')            \n\
         make_valid_name_params.append (args.slice(i, 2));
     }
 
-  octave::make_valid_name_options* options = nullptr;
+  make_valid_name_options *options
+    = use_makeValidName ? new make_valid_name_options (make_valid_name_params)
+                        : nullptr;
 
-  if (use_makeValidName)
-    {
-      octave::make_valid_name_options options_obj (make_valid_name_params);
-      options = &options_obj;
-    }
+  unwind_action del_opts ([options] (void) { if (options) delete options; });
 
   if (! args(0).is_string ())
     error ("jsondecode: JSON_TXT must be a character string");
