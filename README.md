@@ -3,7 +3,10 @@
 JSON support by Matlab compatible (jsondecode / jsonencode) functions.
 
 The code is courtesy of [@Abdallah-Elshamy](https://github.com/Abdallah-Elshamy/)
-from his 2020 Google Summer of Code (GSoC) project, which will be part of Octave 7.
+from his 2020 Google Summer of Code (GSoC) project.
+
+> **This package is already included into Octave core since version 7.1.0 and newer:**
+> <https://octave.org/NEWS-7.html#general-improvements>.
 
 
 ## Installation
@@ -11,7 +14,7 @@ from his 2020 Google Summer of Code (GSoC) project, which will be part of Octave
 From the Octave command-line:
 
 ```octave
-pkg install "https://github.com/gnu-octave/pkg-json/archive/v1.5.0.tar.gz"
+pkg install "https://github.com/gnu-octave/pkg-json/archive/v1.6.0.tar.gz"
 ```
 
 
